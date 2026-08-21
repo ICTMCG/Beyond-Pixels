@@ -1,0 +1,11 @@
+openai>=1.40.0
+pillow>=10.0.0
+
+# Optional: local open-source generation with FLUX (the paper's open-source stack).
+# Uncomment to install:
+# torch>=2.3.0
+# diffusers>=0.30.0
+# transformers>=4.44.0
+# accelerate>=0.33.0
+# sentencepiece
+# protobuf
