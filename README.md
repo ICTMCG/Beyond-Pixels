@@ -9,6 +9,7 @@
 <sup>1</sup>University of Chinese Academy of Sciences &nbsp; <sup>2</sup>University of Konstanz &nbsp; <sup>3</sup>National Cheng Kung University &nbsp; <sup>4</sup>University of Science and Technology Beijing
 
 [![Paper](https://img.shields.io/badge/arXiv-2602.01335-b31b1b)](https://arxiv.org/abs/2602.01335)
+[![Project Page](https://img.shields.io/badge/Project%20Page-Beyond--Pixels-6366f1)](https://ictmcg.github.io/Beyond-Pixels/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
 </div>
