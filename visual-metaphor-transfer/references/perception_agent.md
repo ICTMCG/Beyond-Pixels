@@ -66,18 +66,13 @@ The "Aha!" moment. How does the "taming" or "disruption" of C by S prove the ext
 
 ### UNIVERSAL SCHEMA GRAMMAR
 
-Based on the above analysis, given **{subject}**, derive and generate the corresponding creative image schema Grammar. Output the following elements:
-
-* **Subject (S):**
-* **Carrier (C):**
-* **Generic Space (G):**
+* **Subject (S):** [The primary entity]
+* **Carrier (C):** [The metaphorical vehicle]
+* **Generic Space (G):** [The abstract relational/structural invariant]
 * **Aesthetic (Aes):**
-  * **Composition (Cp):**
-  * **Aesthetic Tonality (At):**
-  * **Graphic/Typographic Elements (Te):**
-* **Inherent Attributes (A_S):**
-* **Carrier Latent Properties (A_C):**
-* **Violation / Conflict Points (V):**
-* **Emergent Meaning (I):**
-
-After completing the above element analysis, please combine these elements appropriately to generate the final creative image scheme for **{subject}**. This scheme should clearly define the main subject, metaphorical carriers, visual conflict, composition method, aesthetic style, textual elements, and the final creative meaning conveyed, making it directly usable for image generation or advertising creative design.
+  * **Composition (Cp):** [e.g., Centered, Minimalist, Macro-focus]
+  * **Aesthetic (At):** [e.g., 90s Graphic, Monochromatic, High-Saturation]
+  * **Graphic/Typographic Elements (Te)**
+* **Inherent Attributes (A_S):** [Physical/Semantic properties]
+* **Violation/Conflict Points (V):** [Nature of the visual/logic disruption]
+* **Emergent Meaning (I):** [Synthesized message/Metaphorical conclusion]

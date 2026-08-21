@@ -1,0 +1,4 @@
+interface:
+  display_name: "Visual Metaphor Transfer"
+  short_description: "Transfer a reference image's visual metaphor onto a new subject."
+  default_prompt: "Transfer the visual metaphor of this reference image to my product."

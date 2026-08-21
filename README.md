@@ -2,13 +2,13 @@
 
 # Beyond Pixels: Visual Metaphor Transfer via Schema-Driven Agentic Reasoning
 
-### SIGGRAPH Asia 2026 (ACM Transactions on Graphics)
+### SIGGRAPH Asia 2026
 
 [Yu Xu](https://imxuyu.github.io/)<sup>1</sup>, Yuxin Zhang<sup>1</sup>, Lin Gao<sup>1</sup>, Oliver Deussen<sup>2</sup>, Tong-Yee Lee<sup>3</sup>, Fan Tang<sup>4&#9993;</sup>
 
 <sup>1</sup>University of Chinese Academy of Sciences &nbsp; <sup>2</sup>University of Konstanz &nbsp; <sup>3</sup>National Cheng Kung University &nbsp; <sup>4</sup>University of Science and Technology Beijing
 
-[![Paper](https://img.shields.io/badge/Paper-coming%20soon-b31b1b)](#citation)
+[![Paper](https://img.shields.io/badge/arXiv-2602.01335-b31b1b)](https://arxiv.org/abs/2602.01335)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
 </div>
@@ -19,7 +19,8 @@
 
 ## News
 
-- **2026-08**: Code, agent system prompts, and evaluation prompts released.
+- **2026-08**: The method is packaged as a ready-to-use agent skill — see [`visual-metaphor-transfer/`](visual-metaphor-transfer/).
+- **2026-08**: Agent system prompts released.
 - **2026-08**: *Beyond Pixels* is accepted to SIGGRAPH Asia 2026. 🎉
 
 ## Abstract
@@ -30,128 +31,60 @@ A visual metaphor constitutes a high-order form of human creativity, employing c
 
 ![pipeline](assets/pipeline.png)
 
-A visual metaphor is represented as a 7-tuple **Schema Grammar** `SG = {S, C, A_S, A_es, G, V, I}` (subject, carrier, subject attributes, expressive attributes, generic space, violation points, emergent meaning), a direct operationalization of Conceptual Blending Theory. The pipeline runs four agents in a closed loop:
+A visual metaphor is represented as a 7-tuple **Schema Grammar** `SG = {S, C, A_S, A_es, G, V, I}` (subject, carrier, subject attributes, expressive attributes, generic space, violation points, emergent meaning), a direct operationalization of Conceptual Blending Theory. The pipeline runs four agents in a closed loop — all reasoning agents are driven by **GPT**, and images are synthesized with **GPT-Image**:
 
-1. **Perception Agent** (VLM) — distills the reference image into `SG_ref`, separating surface entities from abstract relational logic.
-2. **Transfer Agent** (VLM) — synthesizes `SG_tgt` for the target subject while keeping the Generic Space `G` invariant: it profiles the new subject, discovers an apt carrier, and redesigns the violation.
-3. **Generation Agent** (LLM) — translates `SG_tgt` into a stylistically rigorous T2I master prompt, then synthesizes the image with a pre-trained generator.
-4. **Diagnostic Agent** (VLM) — checks subject salience, violation realization, relational coherence, and meaning alignment, then triggers **hierarchical backtracking**: *prompt-level* (refine the T2I prompt), *component-level* (re-select carrier / redesign violation), or *abstraction-level* (re-extract the reference schema). The loop stops on success or after `tau` iterations (paper: `tau = 5`).
+1. **Perception Agent** — distills the reference image into `SG_ref`, separating surface entities from abstract relational logic.
+2. **Transfer Agent** — synthesizes `SG_tgt` for the target subject while keeping the Generic Space `G` invariant: it profiles the new subject, discovers an apt carrier, and redesigns the violation.
+3. **Generation Agent** — translates `SG_tgt` into a stylistically rigorous T2I master prompt, then synthesizes the image with GPT-Image.
+4. **Diagnostic Agent** — checks subject salience, violation realization, relational coherence, and meaning alignment, then triggers **hierarchical backtracking**: *prompt-level* (refine the T2I prompt), *component-level* (re-select carrier / redesign violation), or *abstraction-level* (re-extract the reference schema). The loop stops on success or after `tau` iterations (paper: `tau = 5`).
 
-All four system prompts, the three VLM-judge prompts, and the strong-prompt ablation prompt are released verbatim under [`prompts/`](prompts/).
+## Examples
 
-## Installation
+Results from the paper — for each pair, the left image is the *reference* and the right is the *generated result*:
 
-```bash
-git clone https://github.com/ICTMCG/Beyond-Pixels.git
-cd Beyond-Pixels
-pip install -r requirements.txt
-```
+![results](assets/results.png)
 
-Optional (only for local FLUX generation): uncomment the FLUX block in `requirements.txt` and reinstall.
+**Commercial ad generation** — product attributes are mapped onto novel creative carriers, with or without a reference image:
 
-## Configuration
+![ads](assets/application_ad.png)
 
-All reasoning agents talk to an **OpenAI-compatible** chat-completions endpoint, so both commercial APIs and open-source deployments work without code changes:
+**Meme generation** — the underlying satirical logic of canonical meme templates transfers to new target entities:
 
-| Stack | VLM / LLM (Perception, Transfer, Generation, Diagnostic) | Generator |
+![memes](assets/application_meme.png)
+
+<details>
+<summary><b>Comparison with baselines</b> (BAGEL, Midjourney, GPT-Image, Banana-Pro)</summary>
+
+![comparison](assets/comparison.png)
+
+</details>
+
+## Prompts
+
+The four agent system prompts are released verbatim under [`prompts/`](prompts/):
+
+| File | Agent | Paper notation |
 | --- | --- | --- |
-| Commercial (paper main results) | `gemini-3-pro` | `gemini-3-pro-image` ("Banana-pro") or `gpt-image-1` via the Images API |
-| Open-source (paper supplementary) | Qwen-VL / Qwen (e.g. served by vLLM or DashScope) | FLUX via `diffusers` |
+| [`prompts/perception_agent.md`](prompts/perception_agent.md) | Perception Agent | `p_extract` |
+| [`prompts/transfer_agent.md`](prompts/transfer_agent.md) | Transfer Agent | `p_transfer` |
+| [`prompts/generation_agent.md`](prompts/generation_agent.md) | Generation Agent | `p_generation` |
+| [`prompts/diagnostic_agent.md`](prompts/diagnostic_agent.md) | Diagnostic Agent | `p_critic` |
 
-Configure via environment variables (or the equivalent CLI flags of `run.py`):
+## Use as an Agent Skill
 
-```bash
-export BP_BASE_URL="https://your-openai-compatible-endpoint/v1"
-export BP_API_KEY="sk-..."
-export BP_VLM_MODEL="gemini-3-pro"       # Perception / Transfer / Diagnostic
-export BP_LLM_MODEL="gemini-3-pro"       # Generation
-export BP_T2I_BACKEND="openai"           # "openai" (Images API) or "flux" (local diffusers)
-export BP_T2I_MODEL="gpt-image-1"        # or e.g. black-forest-labs/FLUX.1-dev
-# Optional: a separate endpoint for image generation
-# export BP_T2I_BASE_URL=... ; export BP_T2I_API_KEY=...
-```
+The method also ships as a self-contained agent skill under [`visual-metaphor-transfer/`](visual-metaphor-transfer/) — the same four prompts orchestrated by a closed-loop workflow ([SKILL.md](visual-metaphor-transfer/SKILL.md)) that any skill-capable coding agent can execute directly. Copy that folder into your agent's skills directory:
 
-## Quick Start
+| Agent | Skills directory |
+| --- | --- |
+| Codex | `~/.codex/skills/` |
+| Claude Code | `~/.claude/skills/` |
+| Cursor | `~/.cursor/skills/` |
 
-```bash
-python run.py \
-    --reference examples/your_reference.jpg \
-    --subject "FRESH Rose Cream" \
-    --out outputs/rose_cream
-```
+Then upload a reference image and ask, for example:
 
-The output directory contains every intermediate artifact for inspection:
+> Use `visual-metaphor-transfer` to transfer this image's metaphor to "FRESH Rose Cream".
 
-```
-outputs/rose_cream/
-├── schema_ref.md           # SG_ref extracted by the Perception Agent
-├── schema_tgt.md           # SG_tgt synthesized by the Transfer Agent
-├── iter0_generation.md     # Generation Agent output (master + negative prompt)
-├── iter0_image.png         # synthesized image at iteration 0
-├── iter0_diagnosis.md      # Diagnostic Agent report + backtracking level
-├── ...                     # further iterations, revised schemas / prompts
-├── final.png               # accepted result
-└── run.json                # machine-readable trace of the whole run
-```
-
-Python API:
-
-```python
-from beyond_pixels import PipelineConfig, VMTPipeline
-
-pipeline = VMTPipeline(PipelineConfig())
-pipeline.run("examples/your_reference.jpg", "FRESH Rose Cream", "outputs/rose_cream")
-```
-
-## Evaluation
-
-We release the exact VLM-as-judge prompts used in the paper for **Metaphor Consistency (MC)**, **Analogy Appropriateness (AA)**, and **Conceptual Integration (CI)** (10-point scales; judged by Gemini-3-pro, GPT-5.2, and Claude-4.5 in the paper):
-
-```bash
-python evaluate.py \
-    --source examples/your_reference.jpg \
-    --target outputs/rose_cream/final.png \
-    --description "An ad for FRESH Rose Cream: cream boosts hydration to the max" \
-    --judge-model gpt-5.2
-```
-
-Main quantitative results (126 curated visual metaphors, best in **bold**):
-
-| Method | Gemini-3-pro MC / AA / CI | GPT-5.2 MC / AA / CI | Claude-4.5 MC / AA / CI | Aes. |
-| --- | --- | --- | --- | --- |
-| BAGEL | 5.17 / 4.55 / 5.05 | 6.21 / 5.83 / 6.07 | 6.05 / 5.58 / 5.95 | 4.77 |
-| Midjourney | 5.33 / 5.57 / 6.09 | 6.33 / 6.46 / 6.24 | 6.51 / 5.94 / 6.06 | 5.22 |
-| GPT-Image | 8.08 / 7.59 / 7.47 | 7.71 / 7.65 / 7.54 | 7.95 / 7.39 / 7.51 | 5.63 |
-| Banana-pro | 8.75 / 7.68 / 7.33 | 7.95 / 7.77 / 7.37 | 8.08 / 7.42 / 7.74 | 5.57 |
-| I-spy-a-metaphor | 8.86 / 8.02 / 7.49 | 8.14 / 7.98 / 7.55 | 8.52 / 7.83 / 7.94 | 5.48 |
-| **Ours** | **9.31 / 8.97 / 8.76** | **8.62 / 8.51 / 8.58** | **8.73 / 8.61 / 8.36** | **5.68** |
-
-## Repository Layout
-
-```
-Beyond-Pixels/
-├── prompts/                        # released prompts (verbatim from the paper)
-│   ├── perception_agent.md         # Perception Agent system prompt (p_extract)
-│   ├── transfer_agent.md           # Transfer Agent system prompt (p_transfer)
-│   ├── generation_agent.md         # Generation Agent system prompt (p_generation)
-│   ├── diagnostic_agent.md         # Diagnostic Agent system prompt (p_critic)
-│   ├── eval/                       # VLM-as-judge prompts (MC / AA / CI)
-│   └── ablation/strong_prompt.md   # strong-prompt ablation baseline
-├── beyond_pixels/                  # reference implementation of Algorithm 1
-│   ├── agents.py                   # the four agents
-│   ├── pipeline.py                 # closed loop with hierarchical backtracking
-│   ├── generator.py                # T2I backends (OpenAI Images API / FLUX)
-│   ├── client.py                   # OpenAI-compatible chat client (vision)
-│   └── config.py
-├── run.py                          # CLI entry point
-├── evaluate.py                     # VLM-as-judge evaluation (MC / AA / CI)
-└── examples/
-```
-
-Implementation note: the agent system prompts are released verbatim. The only
-addition made by this implementation is a short machine-readable footer appended
-to the Diagnostic Agent prompt (`VERDICT: PASS|FAIL`, `LEVEL: ...`) so that the
-closed loop can parse the verdict and backtracking level robustly.
+The agent needs vision and a text-to-image tool (e.g. GPT-Image). Without an image tool it will stop after Phase 3 and hand you the final master prompt instead.
 
 ## Ethics & Responsible Use
 
@@ -166,15 +99,10 @@ model providers.
 If you find this work useful, please cite:
 
 ```bibtex
-@article{xu2026beyondpixels,
-  title   = {Beyond Pixels: Visual Metaphor Transfer via Schema-Driven Agentic Reasoning},
-  author  = {Xu, Yu and Zhang, Yuxin and Gao, Lin and Deussen, Oliver and Lee, Tong-Yee and Tang, Fan},
-  journal = {ACM Transactions on Graphics},
-  year    = {2026},
-  note    = {SIGGRAPH Asia 2026}
+@inproceedings{xu2026beyondpixels,
+  title     = {Beyond Pixels: Visual Metaphor Transfer via Schema-Driven Agentic Reasoning},
+  author    = {Xu, Yu and Zhang, Yuxin and Gao, Lin and Deussen, Oliver and Lee, Tong-Yee and Tang, Fan},
+  booktitle = {SIGGRAPH Asia 2026 Conference Papers},
+  year      = {2026}
 }
 ```
-
-## Acknowledgments
-
-This work was partly supported by the Beijing Science and Technology Plan Project (No. Z231100005923033), the National Science and Technology Council, Taiwan (Grant 114-2221-E-006-114-MY3), and the Deutsche Forschungsgemeinschaft (DFG, German Research Foundation) under Germany's Excellence Strategy (EXC 2117, 422037984).
