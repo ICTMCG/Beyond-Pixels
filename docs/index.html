@@ -4,10 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Beyond Pixels: Visual Metaphor Transfer via Schema-Driven Agentic Reasoning</title>
-<meta name="description" content="SIGGRAPH Asia 2026. A cognitive-inspired multi-agent framework that transfers the creative essence of a visual metaphor onto a new subject via a Schema Grammar.">
+<meta name="description" content="SIGGRAPH Asia 2026. Give our agents a creative image and a target — text or image — and they transfer the metaphor behind the image onto your target.">
 <meta property="og:title" content="Beyond Pixels: Visual Metaphor Transfer via Schema-Driven Agentic Reasoning">
-<meta property="og:description" content="SIGGRAPH Asia 2026 · Schema-driven agentic reasoning for visual metaphor transfer.">
-<meta property="og:image" content="static/teaser.png">
+<meta property="og:description" content="SIGGRAPH Asia 2026 · Transfer the creative idea behind an image, not its pixels.">
+<meta property="og:image" content="https://yuci-gpt.github.io/Beyond-Pixels/static/teaser.png">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%236366f1'/%3E%3Cstop offset='.5' stop-color='%23a855f7'/%3E%3Cstop offset='1' stop-color='%2322d3ee'/%3E%3C/linearGradient%3E%3C/defs%3E%3Ccircle cx='32' cy='32' r='30' fill='url(%23g)'/%3E%3Ctext x='32' y='42' font-family='Arial,sans-serif' font-weight='bold' font-size='28' fill='white' text-anchor='middle'%3EBP%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -22,10 +22,10 @@
 <nav id="nav">
   <a class="brand" href="#top"><span class="brand-dot"></span>Beyond&nbsp;Pixels</a>
   <div class="nav-links">
-    <a href="#abstract">Abstract</a>
+    <a href="#text2image">Image + Text</a>
+    <a href="#image2image">Image + Image</a>
     <a href="#method">Method</a>
-    <a href="#results">Results</a>
-    <a href="#skill">Skill</a>
+    <a href="#abstract">Abstract</a>
     <a href="#bibtex">BibTeX</a>
   </div>
   <a class="nav-cta" href="https://github.com/ICTMCG/Beyond-Pixels" target="_blank" rel="noopener">
@@ -34,6 +34,7 @@
   </a>
 </nav>
 
+<!-- ============================== HERO ============================== -->
 <header class="hero" id="top">
   <div class="hero-inner">
     <span class="venue-pill reveal">SIGGRAPH Asia 2026</span>
@@ -70,40 +71,78 @@
       </a>
     </div>
 
-    <figure class="teaser-frame reveal d5" id="tilt">
-      <img src="static/teaser.png" alt="Teaser: diverse visual metaphor transfer results" data-zoom>
-      <figcaption>For each pair — left: <em>reference</em>, right: <em>generated result</em>. One framework, cognitive levels from product ads to film posters and memes.</figcaption>
-    </figure>
+    <!-- live transfer stage -->
+    <div class="stage reveal d5" id="stage" aria-label="Live examples of visual metaphor transfer">
+      <div class="stage-head">
+        <span class="live-dot"></span><span class="stage-title">Live · metaphor transfer</span>
+        <span class="stage-counter" id="stage-counter"></span>
+      </div>
+      <div class="stage-eq">
+        <figure class="stage-slot" data-role="ref">
+          <div class="slot-frame"><img id="stage-src" alt="Reference image"></div>
+          <figcaption>Reference</figcaption>
+        </figure>
+        <div class="stage-op">+</div>
+        <div class="stage-slot stage-target" id="stage-target">
+          <div class="target-chip big" id="stage-chip"><span class="chip-quote">“</span><span class="chip-text" id="stage-chip-text"></span><span class="chip-quote">”</span></div>
+          <div class="slot-frame target-frame" id="stage-tgt-frame"><img id="stage-tgt" alt="Target image"></div>
+          <span class="slot-cap" id="stage-target-cap">Target</span>
+        </div>
+        <div class="stage-op arrow-op"><span class="arrow-line"></span><span class="arrow-head">→</span></div>
+        <figure class="stage-slot" data-role="res">
+          <div class="slot-frame res-frame"><img id="stage-res" alt="Generated result"></div>
+          <figcaption>Result</figcaption>
+        </figure>
+      </div>
+      <p class="stage-metaphor"><span class="stage-metaphor-label">shared logic</span><span id="stage-metaphor"></span></p>
+      <div class="stage-dots" id="stage-dots"></div>
+      <div class="stage-progress"><i id="stage-progress"></i></div>
+    </div>
   </div>
-  <a class="scroll-cue" href="#tldr" aria-label="scroll down"><span></span></a>
+  <a class="scroll-cue" href="#what" aria-label="scroll down"><span></span></a>
 </header>
 
-<section class="strip" id="tldr">
+<!-- ============================ WHAT IT IS =========================== -->
+<section class="strip" id="what">
   <div class="strip-inner reveal">
-    <p class="tldr"><b>TL;DR</b> — Given a reference image that carries a visual metaphor and a target subject, our agents <b>decouple the “creative essence”</b> of the reference and <b>re-materialize that abstract logic</b> onto your subject — beyond pixel-level alignment and appearance preservation.</p>
-    <div class="stats">
-      <div class="stat"><span class="num" data-count="4">0</span><span class="lab">cooperating agents</span></div>
-      <div class="stat"><span class="num" data-count="7">0</span><span class="lab">tuple schema grammar</span></div>
-      <div class="stat"><span class="num" data-count="3">0</span><span class="lab">backtracking levels</span></div>
-      <div class="stat"><span class="num">SOTA</span><span class="lab">MC · AA · CI</span></div>
-    </div>
+    <p class="tldr">Give our agents a <b>creative image</b> and a <b>target</b> — a text or an image — and they generate an image of the target that carries <b>the same creative idea and metaphor</b>. What travels is the logic behind the picture, not the picture.</p>
+    <ul class="not-list">
+      <li><span class="no">✕</span> not image editing</li>
+      <li><span class="no">✕</span> not reference-based generation</li>
+      <li><span class="no">✕</span> not pixel-level consistency</li>
+      <li class="yes"><span class="ok">✓</span> the metaphor behind the image</li>
+    </ul>
   </div>
 </section>
 
 <main>
 
-<section class="section" id="abstract">
-  <h2 class="reveal"><span class="index">01</span>Abstract</h2>
-  <div class="card reveal">
-    <p class="abstract-text">A visual metaphor constitutes a high-order form of human creativity, employing cross-domain semantic fusion to transform abstract concepts into impactful visual rhetoric. Despite the remarkable progress of generative AI, existing models remain largely confined to pixel-level instruction alignment and surface-level appearance preservation, failing to capture the underlying abstract logic necessary for genuine metaphorical generation. To bridge this gap, we introduce the task of <b>Visual Metaphor Transfer (VMT)</b>, which challenges models to autonomously decouple the “creative essence” from a reference image and re-materialize that abstract logic onto a user-specified target subject. We propose a cognitive-inspired, multi-agent framework that operationalizes <b>Conceptual Blending Theory (CBT)</b> through a novel <b>Schema Grammar (𝒮𝒢)</b>. This structured representation decouples relational invariants from specific visual entities, providing a rigorous foundation for cross-domain logic re-instantiation. Our pipeline executes VMT through a collaborative system of specialized agents: a perception agent that distills the reference into a schema, a transfer agent that maintains generic space invariance to discover apt carriers, a generation agent for high-fidelity synthesis, and a hierarchical diagnostic agent that mimics a professional critic, performing closed-loop backtracking to identify and rectify errors across abstract logic, component selection, and prompt encoding. Extensive experiments and human evaluations demonstrate that our method significantly outperforms state-of-the-art baselines in metaphor consistency, analogy appropriateness, and visual creativity.</p>
+<!-- ======================= 01 IMAGE + TEXT ======================== -->
+<section class="section" id="text2image">
+  <div class="sec-head reveal">
+    <h2><span class="index">01</span>Image&nbsp;+&nbsp;Text&nbsp;→&nbsp;Image</h2>
+    <p class="sec-sub">The target is given as <b>text</b>. The agents read the metaphor of the reference, find a carrier that fits the new subject, and re-materialize the idea. Click any card to view it large; cards with several results can be flipped through.</p>
   </div>
+  <div class="grid text-grid" id="grid-text"></div>
 </section>
 
+<!-- ======================= 02 IMAGE + IMAGE ======================= -->
+<section class="section" id="image2image">
+  <div class="sec-head reveal">
+    <h2><span class="index">02</span>Image&nbsp;+&nbsp;Image&nbsp;→&nbsp;Image</h2>
+    <p class="sec-sub">The target is given as an <b>image</b> — typically a product shot. The reference contributes only its abstract logic; the target contributes its identity. The result is a new metaphor for the target, not a blend of the two pictures.</p>
+  </div>
+  <div class="grid image-grid" id="grid-image"></div>
+</section>
+
+<!-- ============================ 03 METHOD ============================ -->
 <section class="section" id="method">
-  <h2 class="reveal"><span class="index">02</span>Method</h2>
+  <div class="sec-head reveal">
+    <h2><span class="index">03</span>How it works</h2>
+    <p class="sec-sub">A visual metaphor is written down as a 7-tuple <b>Schema Grammar</b>; four agents extract it, transfer it, render it and criticize the result in a closed loop.</p>
+  </div>
 
   <div class="schema reveal">
-    <p class="schema-title">A visual metaphor as a 7-tuple <b>Schema Grammar</b> — hover each element</p>
     <div class="chips">
       <span class="chip" data-tip="Subject — the primary entity being presented (your product / concept)">S</span>
       <span class="chip" data-tip="Carrier — the metaphorical vehicle providing the interpretive stage">C</span>
@@ -113,11 +152,11 @@
       <span class="chip" data-tip="Violation points — semantic incongruities where S transgresses the norms of C">V</span>
       <span class="chip" data-tip="Emergent meaning — the “Aha!” message induced by the cognitive tension">I</span>
     </div>
-    <p class="schema-note"><span class="dot-invariant"></span> <b>G</b> is preserved; <b>C, V, I</b> are re-instantiated for the new subject.</p>
+    <p class="schema-note"><span class="dot-invariant"></span> <b>G</b> is preserved; <b>C, V, I</b> are re-instantiated for the new subject. Hover each element.</p>
   </div>
 
   <figure class="frame reveal">
-    <img src="static/pipeline.png" alt="Framework pipeline" data-zoom>
+    <img src="static/pipeline.png" alt="Framework pipeline" data-zoom loading="lazy">
   </figure>
 
   <div class="agents">
@@ -127,7 +166,7 @@
     </div>
     <div class="agent card reveal">
       <div class="agent-head"><span class="agent-ico i2">⇄</span><h3>Transfer Agent</h3></div>
-      <p>Keeps the Generic Space <code>G</code> invariant while profiling the new subject, discovering an apt carrier, and redesigning the violation — yielding <code>SG_tgt</code>.</p>
+      <p>Keeps the Generic Space <code>G</code> invariant while profiling the new subject, discovering an apt carrier and redesigning the violation — yielding <code>SG_tgt</code>.</p>
     </div>
     <div class="agent card reveal">
       <div class="agent-head"><span class="agent-ico i3">✦</span><h3>Generation Agent</h3></div>
@@ -149,39 +188,15 @@
   </div>
 </section>
 
-<section class="section" id="results">
-  <h2 class="reveal"><span class="index">03</span>Results</h2>
-
-  <div class="tabs reveal" role="tablist">
-    <button class="tab active" data-target="g-diverse" role="tab">Diverse Transfers</button>
-    <button class="tab" data-target="g-ads" role="tab">Ad Generation</button>
-    <button class="tab" data-target="g-memes" role="tab">Meme Generation</button>
-    <button class="tab" data-target="g-compare" role="tab">vs. Baselines</button>
+<!-- ========================= 04 QUANTITATIVE ========================= -->
+<section class="section" id="quant">
+  <div class="sec-head reveal">
+    <h2><span class="index">04</span>Numbers</h2>
   </div>
-
-  <div class="gallery reveal">
-    <figure class="pane active" id="g-diverse">
-      <img src="static/results.png" alt="Diverse transfer results" data-zoom>
-      <figcaption>Film posters, commercial ads, public-service campaigns and memes — the underlying metaphor logic transfers while the surface changes entirely.</figcaption>
-    </figure>
-    <figure class="pane" id="g-ads">
-      <img src="static/application_ad.png" alt="Commercial advertisement generation" data-zoom>
-      <figcaption>Product attributes are mapped onto novel creative carriers, with or without a reference image.</figcaption>
-    </figure>
-    <figure class="pane" id="g-memes">
-      <img src="static/application_meme.png" alt="Meme generation" data-zoom>
-      <figcaption>The satirical logic of canonical meme templates transfers to new target entities.</figcaption>
-    </figure>
-    <figure class="pane" id="g-compare">
-      <img src="static/comparison.png" alt="Comparison with baselines" data-zoom>
-      <figcaption>Against BAGEL, Midjourney, GPT-Image and Banana-Pro: baselines substitute objects; ours re-instantiates the metaphor.</figcaption>
-    </figure>
-  </div>
-
   <div class="quant card reveal">
     <p class="quant-title">VLM-as-judge scores on 126 curated visual metaphors <span class="quant-sub">(Gemini-3-pro judge, 10-point scale — similar margins under GPT-5.2 and Claude-4.5)</span></p>
     <div class="charts">
-      <div class="chart" data-metric="MC">
+      <div class="chart">
         <h4>Metaphor Consistency</h4>
         <div class="bar-row"><span class="bar-name">BAGEL</span><div class="bar"><i style="--v:51.7%"></i></div><span class="bar-val">5.17</span></div>
         <div class="bar-row"><span class="bar-name">Midjourney</span><div class="bar"><i style="--v:53.3%"></i></div><span class="bar-val">5.33</span></div>
@@ -189,7 +204,7 @@
         <div class="bar-row"><span class="bar-name">Banana-pro</span><div class="bar"><i style="--v:87.5%"></i></div><span class="bar-val">8.75</span></div>
         <div class="bar-row ours"><span class="bar-name">Ours</span><div class="bar"><i style="--v:93.1%"></i></div><span class="bar-val">9.31</span></div>
       </div>
-      <div class="chart" data-metric="AA">
+      <div class="chart">
         <h4>Analogy Appropriateness</h4>
         <div class="bar-row"><span class="bar-name">BAGEL</span><div class="bar"><i style="--v:45.5%"></i></div><span class="bar-val">4.55</span></div>
         <div class="bar-row"><span class="bar-name">Midjourney</span><div class="bar"><i style="--v:55.7%"></i></div><span class="bar-val">5.57</span></div>
@@ -197,7 +212,7 @@
         <div class="bar-row"><span class="bar-name">Banana-pro</span><div class="bar"><i style="--v:76.8%"></i></div><span class="bar-val">7.68</span></div>
         <div class="bar-row ours"><span class="bar-name">Ours</span><div class="bar"><i style="--v:89.7%"></i></div><span class="bar-val">8.97</span></div>
       </div>
-      <div class="chart" data-metric="CI">
+      <div class="chart">
         <h4>Conceptual Integration</h4>
         <div class="bar-row"><span class="bar-name">BAGEL</span><div class="bar"><i style="--v:50.5%"></i></div><span class="bar-val">5.05</span></div>
         <div class="bar-row"><span class="bar-name">Midjourney</span><div class="bar"><i style="--v:60.9%"></i></div><span class="bar-val">6.09</span></div>
@@ -207,17 +222,30 @@
       </div>
     </div>
     <p class="quant-foot">Preferred by human raters in <b>&gt; 60%</b> of pairwise comparisons against every baseline (100 participants).</p>
+    <details class="cmp">
+      <summary>Qualitative comparison with BAGEL, Midjourney, GPT-Image and Banana-Pro</summary>
+      <img src="static/comparison.png" alt="Comparison with baselines" data-zoom loading="lazy">
+    </details>
   </div>
 </section>
 
+<!-- ============================ 05 ABSTRACT =========================== -->
+<section class="section" id="abstract">
+  <div class="sec-head reveal"><h2><span class="index">05</span>Abstract</h2></div>
+  <div class="card reveal">
+    <p class="abstract-text">A visual metaphor constitutes a high-order form of human creativity, employing cross-domain semantic fusion to transform abstract concepts into impactful visual rhetoric. Despite the remarkable progress of generative AI, existing models remain largely confined to pixel-level instruction alignment and surface-level appearance preservation, failing to capture the underlying abstract logic necessary for genuine metaphorical generation. To bridge this gap, we introduce the task of <b>Visual Metaphor Transfer (VMT)</b>, which challenges models to autonomously decouple the “creative essence” from a reference image and re-materialize that abstract logic onto a user-specified target subject. We propose a cognitive-inspired, multi-agent framework that operationalizes <b>Conceptual Blending Theory (CBT)</b> through a novel <b>Schema Grammar (𝒮𝒢)</b>. This structured representation decouples relational invariants from specific visual entities, providing a rigorous foundation for cross-domain logic re-instantiation. Our pipeline executes VMT through a collaborative system of specialized agents: a perception agent that distills the reference into a schema, a transfer agent that maintains generic space invariance to discover apt carriers, a generation agent for high-fidelity synthesis, and a hierarchical diagnostic agent that mimics a professional critic, performing closed-loop backtracking to identify and rectify errors across abstract logic, component selection, and prompt encoding. Extensive experiments and human evaluations demonstrate that our method significantly outperforms state-of-the-art baselines in metaphor consistency, analogy appropriateness, and visual creativity.</p>
+  </div>
+</section>
+
+<!-- ============================= 06 SKILL ============================= -->
 <section class="section" id="skill">
-  <h2 class="reveal"><span class="index">04</span>Use it as an Agent Skill</h2>
+  <div class="sec-head reveal"><h2><span class="index">06</span>Try it as an Agent Skill</h2></div>
   <div class="skill-grid">
     <div class="card reveal">
-      <p class="skill-lead">The full method ships as a <b>self-contained agent skill</b> — the four paper prompts orchestrated by a closed-loop workflow that Codex, Claude Code, or Cursor can execute directly. No training, no deployment.</p>
+      <p class="skill-lead">The full method ships as a <b>self-contained agent skill</b> — the four paper prompts orchestrated by a closed-loop workflow that Codex, Claude Code or Cursor can execute directly. No training, no deployment.</p>
       <ol class="skill-steps">
         <li>Clone the repo and copy <code>visual-metaphor-transfer/</code> into your agent's skills directory (<code>~/.codex/skills/</code>, <code>~/.claude/skills/</code>, or <code>~/.cursor/skills/</code>).</li>
-        <li>Start a new conversation and upload a reference image.</li>
+        <li>Start a new conversation and upload a reference image (and optionally a target image).</li>
         <li>Ask for a transfer — the agent runs Perception → Transfer → Generation → Diagnosis and iterates until the metaphor lands.</li>
       </ol>
     </div>
@@ -235,8 +263,9 @@
   </div>
 </section>
 
+<!-- ============================= 07 BIBTEX ============================ -->
 <section class="section" id="bibtex">
-  <h2 class="reveal"><span class="index">05</span>BibTeX</h2>
+  <div class="sec-head reveal"><h2><span class="index">07</span>BibTeX</h2></div>
   <div class="bib card reveal">
     <button class="copy-btn" data-copy-target="bibtext">Copy</button>
 <pre id="bibtext">@inproceedings{xu2026beyondpixels,
@@ -258,12 +287,35 @@
       <a href="https://github.com/yuci-gpt/B4M" target="_blank" rel="noopener">B4M</a> ·
       <a href="https://github.com/yuci-gpt/TAG-MoE" target="_blank" rel="noopener">TAG-MoE</a>
     </p>
-    <p class="foot-note">© 2026 The Beyond-Pixels Authors · Released under the MIT License · Page hand-crafted, no template.</p>
+    <p class="foot-note">© 2026 The Beyond-Pixels Authors · Released under the MIT License · Reference images belong to their original creators and are shown for research illustration only.</p>
   </div>
 </footer>
 
+<!-- case viewer -->
+<div class="viewer" id="viewer" aria-hidden="true">
+  <button class="viewer-close" id="viewer-close" aria-label="close">✕</button>
+  <button class="viewer-nav prev" id="viewer-prev" aria-label="previous">‹</button>
+  <button class="viewer-nav next" id="viewer-next" aria-label="next">›</button>
+  <div class="viewer-body">
+    <div class="viewer-eq">
+      <figure class="v-slot"><div class="v-frame"><img id="v-src" alt="Reference"></div><figcaption>Reference</figcaption></figure>
+      <div class="v-op">+</div>
+      <div class="v-slot v-target" id="v-target">
+        <div class="target-chip big" id="v-chip"><span class="chip-quote">“</span><span class="chip-text" id="v-chip-text"></span><span class="chip-quote">”</span></div>
+        <div class="v-frame target-frame" id="v-tgt-frame"><img id="v-tgt" alt="Target"></div>
+        <span class="slot-cap" id="v-target-cap">Target</span>
+      </div>
+      <div class="v-op">→</div>
+      <figure class="v-slot"><div class="v-frame res-frame"><img id="v-res" alt="Result"></div><figcaption id="v-res-cap">Result</figcaption></figure>
+    </div>
+    <div class="viewer-variants" id="v-variants"></div>
+    <p class="viewer-meta"><span class="stage-metaphor-label">shared logic</span><span id="v-metaphor"></span></p>
+  </div>
+</div>
+
 <div class="lightbox" id="lightbox" aria-hidden="true"><img alt=""><span class="lb-hint">click anywhere / ESC to close</span></div>
 
+<script src="showcase-data.js"></script>
 <script src="main.js"></script>
 </body>
 </html>
