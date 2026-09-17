@@ -88,7 +88,7 @@
           <div class="slot-frame target-frame" id="stage-tgt-frame"><img id="stage-tgt" alt="Target image"></div>
           <span class="slot-cap" id="stage-target-cap">Target</span>
         </div>
-        <div class="stage-op arrow-op"><span class="arrow-line"></span><span class="arrow-head">→</span></div>
+        <div class="stage-op arrow-op"><span class="arrow-line"></span><span class="arrow-head"></span></div>
         <figure class="stage-slot" data-role="res">
           <div class="slot-frame res-frame"><img id="stage-res" alt="Generated result"></div>
           <figcaption>Result</figcaption>
@@ -121,7 +121,7 @@
 <section class="section" id="text2image">
   <div class="sec-head reveal">
     <h2><span class="index">01</span>Image&nbsp;+&nbsp;Text&nbsp;→&nbsp;Image</h2>
-    <p class="sec-sub">The target is given as <b>text</b>. The agents read the metaphor of the reference, find a carrier that fits the new subject, and re-materialize the idea. When one reference is re-instantiated for <b>several targets</b>, the cases are drawn as a single branching card. Click any card to view it large.</p>
+    <p class="sec-sub">The target is given as <b>text</b>. The agents read the metaphor of the reference, find a carrier that fits the new subject, and re-materialize the idea. The same reference can be re-instantiated for several different targets. Click any card to view it large.</p>
   </div>
   <div class="grid text-grid" id="grid-text"></div>
 </section>
@@ -130,7 +130,7 @@
 <section class="section" id="image2image">
   <div class="sec-head reveal">
     <h2><span class="index">02</span>Image&nbsp;+&nbsp;Image&nbsp;→&nbsp;Image</h2>
-    <p class="sec-sub">The target is given as an <b>image</b> — typically a product shot. The reference contributes only its abstract logic; the target contributes its identity. The result is a new metaphor for the target, not a blend of the two pictures. When <b>several references</b> are transferred onto the same target, they converge in one card.</p>
+    <p class="sec-sub">The target is given as an <b>image</b> — typically a product shot. The reference contributes only its abstract logic; the target contributes its identity. The result is a new metaphor for the target, not a blend of the two pictures — and the same product can borrow a different metaphor from each reference.</p>
   </div>
   <div class="grid image-grid" id="grid-image"></div>
 </section>
@@ -139,7 +139,24 @@
 <section class="section" id="method">
   <div class="sec-head reveal">
     <h2><span class="index">03</span>How it works</h2>
-    <p class="sec-sub">A visual metaphor is written down as a 7-tuple <b>Schema Grammar</b>; four agents extract it, transfer it, render it and criticize the result in a closed loop.</p>
+    <p class="sec-sub">We ground the task in <b>Conceptual Blending Theory</b>, write a visual metaphor down as a 7-tuple <b>Schema Grammar</b>, and let four agents extract, transfer, render and criticize it in a closed loop.</p>
+  </div>
+
+  <div class="theory reveal">
+    <figure class="theory-fig">
+      <img src="static/conceptual_blending.png" alt="Conceptual Blending Theory: two input spaces, a generic space and a blended space" data-zoom loading="lazy">
+    </figure>
+    <div class="theory-text">
+      <p class="theory-kicker">Theoretical basis</p>
+      <h3>Conceptual Blending Theory</h3>
+      <p class="theory-lead">Fauconnier &amp; Turner's account of how the mind creates new meaning: a metaphor is not a linear mapping from one thing to another, but the integration of four mental spaces.</p>
+      <ul class="spaces">
+        <li><span class="sp sp1"></span><b>Input Space 1 &amp; 2</b><span>Two specific contexts — for a visual metaphor, the <em>subject</em> and the <em>carrier</em>. Their elements are linked as counterparts through <em>cross-space mapping</em>.</span></li>
+        <li><span class="sp sp3"></span><b>Generic Space</b><span>The abstract structure both inputs share — roles, frames, relations — captured by <em>structure mapping</em>. It is what makes the two inputs comparable at all.</span></li>
+        <li><span class="sp sp4"></span><b>Blended Space</b><span>Receives a <em>selective projection</em> from both inputs and, through composition, completion and elaboration, develops <em>emergent structure</em>: meaning that exists in neither input alone.</span></li>
+      </ul>
+      <p class="theory-bridge">Our Schema Grammar operationalizes these spaces one-to-one: <code>S</code>, <code>C</code> instantiate the input spaces; <code>G</code> is the generic space; <code>V</code>, <code>I</code> realize the blend — the violation is the selective projection, the emergent meaning is its emergent structure.</p>
+    </div>
   </div>
 
   <div class="schema reveal">

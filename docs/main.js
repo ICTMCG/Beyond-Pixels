@@ -19,17 +19,17 @@
   var pad = function (n) { return (n < 10 ? "0" : "") + n; };
 
   /* ------------------------------------------------------------------ data */
-  var DATA = window.SHOWCASE || { text: [], image: [], groups: {}, liveOrder: [] };
+  var DATA = window.SHOWCASE || { text: [], image: [], liveOrder: [] };
   var TEXT = DATA.text.map(function (c) {
     return {
-      kind: "text", id: c.id, metaphor: c.metaphor || "", related: c.related || [],
+      kind: "text", id: c.id, metaphor: c.metaphor || "",
       source: "static/show/text/" + c.id + "_src.jpg",
       results: c.results.map(function (r) { return { src: r.src, target: r.target || c.target, live: !!r.live }; })
     };
   });
   var IMAGE = DATA.image.map(function (c) {
     return {
-      kind: "image", id: c.id, live: !!c.live, group: c.group || null, refName: c.ref || "", metaphor: c.metaphor || "", related: c.related || [],
+      kind: "image", id: c.id, live: !!c.live, metaphor: c.metaphor || "",
       source: "static/show/image/" + c.id + "_src.jpg",
       targetImg: "static/show/image/" + c.id + "_tgt.jpg",
       results: [{ src: "static/show/image/" + c.id + "_res.jpg", target: c.target, live: !!c.live }]
@@ -38,12 +38,9 @@
   var byId = { text: {}, image: {} };
   TEXT.forEach(function (c) { byId.text[c.id] = c; });
   IMAGE.forEach(function (c) { byId.image[c.id] = c; });
-  var visibleResults = function (c) { return c.results.filter(function (r) { return !r.live; }); };
 
-  /* Viewer entries: one per (case, visible results) for text; one per member for image. */
+  /* Viewer entries, one per card, in grid order. */
   var VIEW = { text: [], image: [] };
-  var cardNumber = { text: {}, image: {} };   // case id -> card number (for cross links)
-  var cardNode = { text: {}, image: {} };     // case id -> DOM node
 
   /* ------------------------------------------------------------- nav state */
   var nav = $("#nav");
@@ -66,144 +63,43 @@
     $(".chip-text", chip).textContent = text;
     return chip;
   }
-  function buildFork(dir, rows) {
-    var f = el("div", "fork fork-" + dir);
-    f.dataset.rows = rows;
-    f.innerHTML = '<svg preserveAspectRatio="none"><path class="fork-path" vector-effect="non-scaling-stroke"/></svg>';
-    return f;
-  }
-  function relatedPills(list) {
-    var wrap = el("div", "related");
-    list.forEach(function (rel) {
-      var a = el("a", "rel-pill");
-      a.dataset.kind = rel.kind; a.dataset.id = rel.id;
-      wrap.appendChild(a);
-    });
-    return wrap;
-  }
-  function foot(metaphorHtml, related) {
-    var f = el("div", "case-foot");
-    f.appendChild(el("p", "metaphor", '<span class="stage-metaphor-label">shared logic</span>' + metaphorHtml));
-    if (related && related.length) f.appendChild(relatedPills(related));
-    return f;
-  }
+  var arrow = function () { return el("div", "op arrow", "<i></i><b></b>"); };
 
-  /* single text card:  [ref] + "target" -> [result] */
-  function buildTextSingle(c, r, num) {
-    var card = el("article", "case single");
-    card.id = "case-text-" + c.id;
+  /* one card = one equation:  [reference] + target -> [result] */
+  function buildCard(c, r, num) {
+    var card = el("article", "case");
     card.appendChild(el("span", "case-num", "#" + pad(num)));
-    var eq = el("div", "eq two");
-    var ref = el("div", "slot ref"); ref.appendChild(buildFrame(c.source, "Reference image")); ref.appendChild(el("span", "tag", "Reference"));
+    var eq = el("div", "eq " + (c.kind === "text" ? "two" : "three"));
+
+    var ref = el("div", "slot ref");
+    ref.appendChild(buildFrame(c.source, "Reference image"));
+    ref.appendChild(el("span", "tag", "Reference"));
     eq.appendChild(ref);
     eq.appendChild(el("div", "op", "+"));
-    var tgt = el("div", "slot tgt"); tgt.appendChild(buildChip(r.target)); tgt.appendChild(el("span", "tag", "Target · text"));
+
+    var tgt = el("div", "slot tgt");
+    if (c.kind === "text") {
+      tgt.appendChild(buildChip(r.target));
+      tgt.appendChild(el("span", "tag", "Target · text"));
+    } else {
+      tgt.appendChild(buildFrame(c.targetImg, "Target image", true));
+      tgt.appendChild(el("span", "tag", "Target · image"));
+    }
     eq.appendChild(tgt);
-    eq.appendChild(el("div", "op arrow", "<i></i><b>→</b>"));
-    var res = el("div", "slot res"); res.appendChild(buildFrame(r.src, r.target)); res.appendChild(el("span", "tag", "Result"));
+    eq.appendChild(arrow());
+
+    var res = el("div", "slot res");
+    res.appendChild(buildFrame(r.src, r.target));
+    res.appendChild(el("span", "tag", "Result"));
     eq.appendChild(res);
     card.appendChild(eq);
-    card.appendChild(foot(c.metaphor, c.related));
-    var entry = { kind: "text", source: c.source, results: [r], metaphor: c.metaphor };
-    var idx = VIEW.text.push(entry) - 1;
-    card.addEventListener("click", function () { openViewer("text", idx, 0); });
-    return card;
-  }
 
-  /* fan-out text card:  [ref] ─┬─ + "target 1" -> [result 1]
-                                └─ + "target 2" -> [result 2] */
-  function buildTextFan(c, rs, num) {
-    var card = el("article", "case fan fan-out-card");
-    card.id = "case-text-" + c.id;
-    card.style.setProperty("--rows", rs.length);
-    card.appendChild(el("span", "case-num", "#" + pad(num)));
-    card.appendChild(el("span", "group-pill", "1 reference · " + rs.length + " targets"));
-    var eq = el("div", "eq fanout");
-    var ref = el("div", "slot ref span-rows"); ref.style.gridColumn = 1;
-    ref.appendChild(buildFrame(c.source, "Reference image")); ref.appendChild(el("span", "tag", "Reference"));
-    eq.appendChild(ref);
-    var fork = buildFork("out", rs.length); fork.style.gridColumn = 2;
-    eq.appendChild(fork);
-    var entry = { kind: "text", source: c.source, results: rs, metaphor: c.metaphor };
-    var idx = VIEW.text.push(entry) - 1;
-    rs.forEach(function (r, i) {
-      var row = i + 1;
-      var plus = el("div", "op row-op", "+"); plus.style.gridRow = row; plus.style.gridColumn = 3;
-      var tgt = el("div", "slot tgt"); tgt.style.gridRow = row; tgt.style.gridColumn = 4; tgt.appendChild(buildChip(r.target)); tgt.appendChild(el("span", "tag", "Target · text"));
-      var arrow = el("div", "op arrow", "<i></i><b>→</b>"); arrow.style.gridRow = row; arrow.style.gridColumn = 5;
-      var res = el("div", "slot res fan-row"); res.style.gridRow = row; res.style.gridColumn = 6; res.appendChild(buildFrame(r.src, r.target)); res.appendChild(el("span", "tag", "Result"));
-      res.addEventListener("click", function (e) { e.stopPropagation(); openViewer("text", idx, i); });
-      eq.appendChild(plus); eq.appendChild(tgt); eq.appendChild(arrow); eq.appendChild(res);
-    });
-    card.appendChild(eq);
-    card.appendChild(foot(c.metaphor, c.related));
-    card.addEventListener("click", function () { openViewer("text", idx, 0); });
-    return card;
-  }
+    var foot = el("div", "case-foot");
+    foot.appendChild(el("p", "metaphor", '<span class="stage-metaphor-label">shared logic</span>' + c.metaphor));
+    card.appendChild(foot);
 
-  /* single image card:  [ref] + [target image] -> [result] */
-  function buildImageSingle(c, num) {
-    var card = el("article", "case single");
-    card.id = "case-image-" + c.id;
-    card.appendChild(el("span", "case-num", "#" + pad(num)));
-    var eq = el("div", "eq three");
-    var ref = el("div", "slot ref"); ref.appendChild(buildFrame(c.source, "Reference image")); ref.appendChild(el("span", "tag", "Reference"));
-    eq.appendChild(ref);
-    eq.appendChild(el("div", "op", "+"));
-    var tgt = el("div", "slot tgt"); tgt.appendChild(buildFrame(c.targetImg, "Target image", true)); tgt.appendChild(el("span", "tag", "Target · image"));
-    eq.appendChild(tgt);
-    eq.appendChild(el("div", "op arrow", "<i></i><b>→</b>"));
-    var r = c.results[0];
-    var res = el("div", "slot res"); res.appendChild(buildFrame(r.src, r.target)); res.appendChild(el("span", "tag", "Result"));
-    eq.appendChild(res);
-    card.appendChild(eq);
-    card.appendChild(foot(c.metaphor, c.related));
-    var idx = VIEW.image.push({ kind: "image", source: c.source, targetImg: c.targetImg, results: [r], metaphor: c.metaphor }) - 1;
-    card.addEventListener("click", function () { openViewer("image", idx, 0); });
-    return card;
-  }
-
-  /* fan-in image card:  [ref 1] ─┐            ┌─> [result 1]
-                         [ref 2] ─┼ + [target] ┼─> [result 2]
-                         [ref 3] ─┘            └─> [result 3] */
-  function buildImageFan(members, group, num) {
-    var card = el("article", "case fan fan-in-card");
-    card.id = "case-image-" + members[0].group;
-    card.style.setProperty("--rows", members.length);
-    card.appendChild(el("span", "case-num", "#" + pad(num)));
-    card.appendChild(el("span", "group-pill", members.length + " references · 1 target"));
-    var eq = el("div", "eq fanin");
-    var idxs = [];
-    members.forEach(function (m, i) {
-      var row = i + 1;
-      var ref = el("div", "slot ref fan-row"); ref.style.gridRow = row; ref.style.gridColumn = 1;
-      ref.appendChild(buildFrame(m.source, "Reference image"));
-      ref.appendChild(el("span", "tag", m.refName ? "Reference · " + m.refName : "Reference"));
-      eq.appendChild(ref);
-      var r = m.results[0];
-      var res = el("div", "slot res"); res.style.gridRow = row; res.style.gridColumn = 5; res.appendChild(buildFrame(r.src, r.target)); res.appendChild(el("span", "tag", "Result"));
-      var idx = VIEW.image.push({ kind: "image", source: m.source, targetImg: m.targetImg, results: [r], metaphor: m.metaphor }) - 1;
-      idxs.push(idx);
-      res.addEventListener("click", function (e) { e.stopPropagation(); openViewer("image", idx, 0); });
-      ref.addEventListener("click", function (e) { e.stopPropagation(); openViewer("image", idx, 0); });
-      eq.appendChild(res);
-    });
-    var forkIn = buildFork("in", members.length); forkIn.style.gridColumn = 2;
-    eq.appendChild(forkIn);
-    var tgt = el("div", "slot tgt span-rows"); tgt.style.gridColumn = 3;
-    tgt.appendChild(buildFrame(members[0].targetImg, "Target image", true)); tgt.appendChild(el("span", "tag", "Target · image"));
-    eq.appendChild(tgt);
-    var forkOut = buildFork("out", members.length); forkOut.style.gridColumn = 4;
-    eq.appendChild(forkOut);
-    card.appendChild(eq);
-
-    var lines = members.map(function (m) { return "<b>" + (m.refName || m.id) + "</b> — " + m.metaphor; }).join('<span class="sep">·</span>');
-    var related = [];
-    members.forEach(function (m) { related = related.concat(m.related); });
-    var f = foot(lines, related);
-    if (group && group.note) f.insertBefore(el("p", "group-note", group.note), f.firstChild);
-    card.appendChild(f);
-    card.addEventListener("click", function () { openViewer("image", idxs[0], 0); });
+    var idx = VIEW[c.kind].push({ kind: c.kind, source: c.source, targetImg: c.targetImg, results: [r], metaphor: c.metaphor }) - 1;
+    card.addEventListener("click", function () { openViewer(c.kind, idx); });
     return card;
   }
 
@@ -211,83 +107,18 @@
   var gridText = $("#grid-text"), gridImage = $("#grid-image");
   var n = 0;
   TEXT.forEach(function (c) {
-    var rs = visibleResults(c);
-    if (!rs.length) return;
-    n += 1;
-    var card = rs.length === 1 ? buildTextSingle(c, rs[0], n) : buildTextFan(c, rs, n);
-    cardNumber.text[c.id] = n; cardNode.text[c.id] = card;
-    gridText.appendChild(card);
-  });
-  // a single card left alone on the last row is centred
-  (function () {
-    var run = 0, last = null;
-    $$(".case", gridText).forEach(function (card) {
-      if (card.classList.contains("fan")) { run = 0; last = null; return; }
-      run += 1; last = card;
+    c.results.forEach(function (r) {
+      if (r.live) return;
+      gridText.appendChild(buildCard(c, r, ++n));
     });
-    if (run % 2 === 1 && last) last.classList.add("lone");
-  })();
+  });
+  if (n % 2 === 1) gridText.lastElementChild.classList.add("lone");   // centre a card left alone on the last row
 
   n = 0;
-  var doneGroups = {};
   IMAGE.forEach(function (c) {
     if (c.live) return;
-    if (c.group) {
-      if (doneGroups[c.group]) return;
-      doneGroups[c.group] = true;
-      var members = IMAGE.filter(function (m) { return m.group === c.group && !m.live; });
-      n += 1;
-      var card = buildImageFan(members, (DATA.groups || {})[c.group], n);
-      members.forEach(function (m) { cardNumber.image[m.id] = n; cardNode.image[m.id] = card; });
-      gridImage.appendChild(card);
-      return;
-    }
-    n += 1;
-    var single = buildImageSingle(c, n);
-    cardNumber.image[c.id] = n; cardNode.image[c.id] = single;
-    gridImage.appendChild(single);
+    gridImage.appendChild(buildCard(c, c.results[0], ++n));
   });
-
-  // cross-section links (second pass, once both grids exist)
-  $$(".rel-pill").forEach(function (a) {
-    var kind = a.dataset.kind, id = a.dataset.id, num = cardNumber[kind][id], node = cardNode[kind][id];
-    if (!num || !node) { a.remove(); return; }
-    a.href = "#" + node.id;
-    a.textContent = "↗ same reference · " + (kind === "text" ? "01" : "02") + " #" + pad(num) + (kind === "text" ? " (text target)" : " (image target)");
-    a.addEventListener("click", function (e) { e.stopPropagation(); });
-  });
-
-  /* ---------------------------------------------------------- fork paths */
-  function layoutForks() {
-    $$(".fork").forEach(function (fork) {
-      var eq = fork.parentNode, rect = fork.getBoundingClientRect();
-      if (!rect.width || !rect.height) return;
-      var dir = fork.classList.contains("fork-out") ? "out" : "in";
-      var rows = parseInt(fork.dataset.rows, 10);
-      // row centres, measured from the frames sitting in each grid row:
-      // fork-in joins the reference rows, fork-out joins the result rows
-      var frames = $$(dir === "in" ? ".slot.ref .fimg" : ".slot.res .fimg", eq);
-      var ys = frames.slice(0, rows).map(function (f) { var r = f.getBoundingClientRect(); return r.top + r.height / 2 - rect.top; });
-      if (ys.length !== rows) return;
-      var W = rect.width, H = rect.height, mid = H / 2;
-      var bar = dir === "out" ? W * 0.32 : W * 0.68;
-      var d = "M" + bar + " " + ys[0] + " V" + ys[ys.length - 1];
-      ys.forEach(function (y) {
-        d += dir === "out" ? " M" + bar + " " + y + " H" + (W - 1) : " M1 " + y + " H" + bar;
-        if (dir === "out") d += " M" + (W - 7) + " " + (y - 4) + " L" + (W - 1) + " " + y + " L" + (W - 7) + " " + (y + 4);
-      });
-      d += dir === "out" ? " M1 " + mid + " H" + bar : " M" + bar + " " + mid + " H" + (W - 1);
-      var svg = $("svg", fork);
-      svg.setAttribute("viewBox", "0 0 " + W + " " + H);
-      $("path", svg).setAttribute("d", d);
-    });
-  }
-  var forkTimer = null;
-  var scheduleForks = function () { clearTimeout(forkTimer); forkTimer = setTimeout(layoutForks, 60); };
-  window.addEventListener("resize", scheduleForks);
-  window.addEventListener("load", scheduleForks);
-  requestAnimationFrame(layoutForks);
-  setTimeout(layoutForks, 400);
 
   /* ---------------------------------------------------------- reveal anim */
   var revealObserver = new IntersectionObserver(function (entries) {
@@ -380,10 +211,10 @@
   /* ------------------------------------------------------------ case viewer */
   var viewer = $("#viewer");
   var vSrc = $("#v-src"), vTgt = $("#v-tgt"), vRes = $("#v-res"), vChipText = $("#v-chip-text"), vMeta = $("#v-metaphor"), vVariants = $("#v-variants"), vResCap = $("#v-res-cap"), vTgtCap = $("#v-target-cap");
-  var vList = null, vIndex = 0, vVariant = 0, vEntry = null;
+  var vList = null, vIndex = 0, vEntry = null;
 
   function renderViewer(animate) {
-    var c = vEntry, r = c.results[vVariant];
+    var c = vEntry, r = c.results[0];
     var apply = function () {
       viewer.classList.toggle("is-image", c.kind === "image");
       setImg(vSrc.parentNode, vSrc, c.source, "Reference");
@@ -391,16 +222,8 @@
       if (c.kind === "image") { setImg($("#v-tgt-frame"), vTgt, c.targetImg, "Target"); vTgtCap.textContent = "Target · image"; }
       else { vChipText.textContent = r.target; vTgtCap.textContent = "Target · text"; }
       vMeta.textContent = c.metaphor;
-      vResCap.textContent = c.results.length > 1 ? "Result " + (vVariant + 1) + " / " + c.results.length : "Result";
+      vResCap.textContent = "Result";
       vVariants.innerHTML = "";
-      if (c.results.length > 1) {
-        c.results.forEach(function (rr, i) {
-          var b = el("button", i === vVariant ? "active" : "");
-          b.innerHTML = '<img src="' + rr.src + '" alt="' + rr.target + '">';
-          b.addEventListener("click", function (e) { e.stopPropagation(); vVariant = i; renderViewer(true); });
-          vVariants.appendChild(b);
-        });
-      }
       viewer.classList.remove("switching");
     };
     if (animate && !reduceMotion) { viewer.classList.add("switching"); setTimeout(apply, 240); } else apply();
@@ -411,13 +234,13 @@
     viewer.setAttribute("aria-hidden", "false");
     document.body.style.overflow = "hidden";
   }
-  function openViewer(kind, index, variant) {
-    vList = VIEW[kind]; vIndex = index; vVariant = variant || 0; vEntry = vList[vIndex];
+  function openViewer(kind, index) {
+    vList = VIEW[kind]; vIndex = index; vEntry = vList[vIndex];
     viewer.classList.remove("no-nav");
     showViewer();
   }
   function openViewerEntry(entry) {          // hero stage: single entry, no prev/next
-    vList = null; vEntry = entry; vVariant = 0;
+    vList = null; vEntry = entry;
     viewer.classList.add("no-nav");
     showViewer();
   }
@@ -428,7 +251,7 @@
   }
   function stepViewer(dir) {
     if (!vList) return;
-    vIndex = (vIndex + dir + vList.length) % vList.length; vVariant = 0; vEntry = vList[vIndex];
+    vIndex = (vIndex + dir + vList.length) % vList.length; vEntry = vList[vIndex];
     renderViewer(true);
   }
   $("#viewer-close").addEventListener("click", closeViewer);
