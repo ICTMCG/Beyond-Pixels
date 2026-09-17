@@ -135,77 +135,77 @@
   }, { threshold: 0.35 });
   $$(".chart").forEach(function (node) { chartObserver.observe(node); });
 
-  /* ------------------------------------------------------------ live stage */
-  var stage = $("#stage");
-  var HERO = (DATA.liveOrder || []).map(function (key) {
-    var parts = key.split(":"), c = byId[parts[0]] && byId[parts[0]][parts[1]];
-    if (!c) return null;
-    var r = c.results.filter(function (x) { return x.live; })[0] || c.results[0];
-    return { kind: c.kind, source: c.source, targetImg: c.targetImg, result: r, metaphor: c.metaphor };
-  }).filter(Boolean);
-
-  if (stage && HERO.length) {
-    var INTERVAL = 5600, SWAP = 420;
-    var sSrc = $("#stage-src"), sTgt = $("#stage-tgt"), sRes = $("#stage-res"), sChip = $("#stage-chip"), sChipText = $("#stage-chip-text");
-    var sMeta = $("#stage-metaphor"), sCounter = $("#stage-counter"), sDots = $("#stage-dots"), sProg = $("#stage-progress"), sTgtCap = $("#stage-target-cap");
-    var cur = -1, elapsed = 0, paused = false, visible = true, last = null, typeTimer = null;
-
-    HERO.forEach(function (c, i) {
-      var b = el("button"); b.setAttribute("aria-label", "example " + (i + 1));
-      b.addEventListener("click", function () { show(i); elapsed = 0; });
-      sDots.appendChild(b);
-    });
-    HERO.forEach(function (c) { [c.source, c.result.src, c.targetImg].forEach(function (s) { if (s) { var im = new Image(); im.src = s; } }); });
+  /* ----------------------------------------------------------- walkthrough */
+  var walk = $("#walk");
+  if (walk) {
+    var STEPS = 6;
+    var DUR = [2400, 4400, 2400, 4400, 3000, 5200];          // ms spent on each step
+    var AGENT = [
+      "Step 1 · a reference image carrying a visual metaphor",
+      "Step 2 · Perception Agent distils it into a schema",
+      "Step 3 · a new target arrives — given as text",
+      "Step 4 · Transfer Agent keeps G, re-instantiates the rest",
+      "Step 5 · Generation Agent renders the target schema",
+      "Step 6 · Diagnostic Agent verifies four constraints"
+    ];
+    var wSteps = $$("#walk-steps li"), wAgent = $("#walk-agent"), wProg = $("#walk-progress");
+    var wChip = $("#walk-chip"), wChipText = $("#walk-chip-text");
+    var step = 0, elapsed = 0, paused = false, visible = true, last = null, typeTimer = null;
 
     function typeChip(text) {
       clearTimeout(typeTimer);
-      sChipText.textContent = "";
-      if (reduceMotion) { sChipText.textContent = text; return; }
-      sChip.classList.add("typing");
+      wChipText.textContent = "";
+      if (reduceMotion) { wChipText.textContent = text; return; }
+      wChip.classList.add("typing");
       var i = 0;
       var tick = function () {
-        sChipText.textContent = text.slice(0, ++i);
-        if (i < text.length) typeTimer = setTimeout(tick, 42);
-        else typeTimer = setTimeout(function () { sChip.classList.remove("typing"); }, 700);
+        wChipText.textContent = text.slice(0, ++i);
+        if (i < text.length) typeTimer = setTimeout(tick, 70);
+        else typeTimer = setTimeout(function () { wChip.classList.remove("typing"); }, 800);
       };
-      typeTimer = setTimeout(tick, 120);
+      typeTimer = setTimeout(tick, 350);
     }
-    function show(i) {
-      cur = i;
-      var c = HERO[i];
-      stage.classList.add("switching");
-      $$("button", sDots).forEach(function (b, k) { b.classList.toggle("active", k === i); });
-      sCounter.textContent = pad(i + 1) + " / " + pad(HERO.length);
-      setTimeout(function () {
-        stage.classList.toggle("is-image", c.kind === "image");
-        setImg(sSrc.parentNode, sSrc, c.source, "Reference");
-        setImg(sRes.parentNode, sRes, c.result.src, c.result.target);
-        if (c.kind === "image") { setImg($("#stage-tgt-frame"), sTgt, c.targetImg, "Target"); sTgtCap.textContent = "Target · image"; }
-        else { typeChip(c.result.target); sTgtCap.textContent = "Target · text"; }
-        sMeta.textContent = c.metaphor;
-        stage.classList.remove("switching");
-      }, reduceMotion ? 0 : SWAP);
+    function goTo(k) {
+      step = k; elapsed = 0;
+      for (var i = 1; i <= STEPS; i++) walk.classList.toggle("r" + i, i <= k);
+      wSteps.forEach(function (li, i) {
+        li.classList.toggle("on", i + 1 === k);
+        li.classList.toggle("done", i + 1 < k);
+      });
+      wAgent.textContent = AGENT[k - 1];
+      if (k === 3) typeChip("towel");
+      else if (k < 3) { clearTimeout(typeTimer); wChip.classList.remove("typing"); wChipText.textContent = ""; }
+      else if (!wChipText.textContent) wChipText.textContent = "towel";
     }
     function frame(ts) {
       if (last === null) last = ts;
       var dt = ts - last; last = ts;
       if (!paused && visible && !document.hidden) {
         elapsed += dt;
-        if (elapsed >= INTERVAL) { elapsed = 0; show((cur + 1) % HERO.length); }
+        if (elapsed >= DUR[step - 1]) goTo(step % STEPS + 1);
       }
-      sProg.style.width = Math.min(elapsed / INTERVAL * 100, 100) + "%";
+      wProg.style.width = Math.min(elapsed / DUR[step - 1] * 100, 100) + "%";
       requestAnimationFrame(frame);
     }
-    stage.addEventListener("mouseenter", function () { paused = true; });
-    stage.addEventListener("mouseleave", function () { paused = false; });
-    new IntersectionObserver(function (e) { visible = e[0].isIntersecting; }, { threshold: 0.2 }).observe(stage);
-    stage.addEventListener("click", function (e) {
-      if (e.target.closest("button")) return;
-      var c = HERO[cur];
-      openViewerEntry({ kind: c.kind, source: c.source, targetImg: c.targetImg, results: [c.result], metaphor: c.metaphor });
+    wSteps.forEach(function (li) {
+      li.addEventListener("click", function () { goTo(parseInt(li.dataset.step, 10)); });
     });
-    show(0);
-    requestAnimationFrame(frame);
+    walk.addEventListener("mouseenter", function () { paused = true; });
+    walk.addEventListener("mouseleave", function () { paused = false; });
+    new IntersectionObserver(function (e) { visible = e[0].isIntersecting; }, { threshold: 0.2 }).observe(walk);
+
+    var carrot = byId.text.carrot;
+    $$("img[data-walk-zoom]", walk).forEach(function (img) {
+      img.addEventListener("click", function (e) {
+        e.stopPropagation();
+        if (carrot) openViewerEntry({ kind: "text", source: carrot.source, results: [carrot.results[0]], metaphor: carrot.metaphor });
+      });
+    });
+
+    var fixed = parseInt((location.search.match(/[?&]step=(\d)/) || [])[1], 10);   // ?step=N freezes the walkthrough
+    if (fixed >= 1 && fixed <= STEPS) { goTo(fixed); paused = true; }
+    else if (reduceMotion) { goTo(STEPS); wProg.style.width = "100%"; }
+    else { goTo(1); requestAnimationFrame(frame); }
   }
 
   /* ------------------------------------------------------------ case viewer */

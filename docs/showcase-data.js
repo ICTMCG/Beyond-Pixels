@@ -4,12 +4,10 @@
 
    - Every visible result becomes its own card (a reference used with several
      targets is simply repeated), so all cards share one layout.
-   - `live: true` on a result (text) or a case (image) puts it in the hero stage
-     and removes it from the grids below, so no result image appears twice.
+   - `live: true` marks the result used by the hero walkthrough; it is removed
+     from the grids below so no result image appears twice.
    - `target` on a result overrides the case-level target. */
 window.SHOWCASE = {
-  liveOrder: ["text:carrot", "image:shoes", "text:sleep", "image:duolingo", "text:crab", "image:catchup"],
-
   text: [
     { id: "carrot", target: "Cotton towel",
       metaphor: "As fresh as if pulled from the ground → as pure as if grown on the cotton plant.",
@@ -25,11 +23,11 @@ window.SHOWCASE = {
       results: [{ src: "static/show/text/plane_r1.jpg" }] },
     { id: "crab", target: "Crab",
       metaphor: "Ocean trash becomes part of the creature itself.",
-      results: [{ src: "static/show/text/crab_r1.jpg", live: true }, { src: "static/show/text/crab_r2.jpg" }] },
+      results: [{ src: "static/show/text/crab_r1.jpg" }, { src: "static/show/text/crab_r2.jpg" }] },
     { id: "sleep",
       metaphor: "The product literally is the thing it does for you.",
       results: [
-        { src: "static/show/text/sleep_r2.jpg", target: "Coffee", live: true },
+        { src: "static/show/text/sleep_r2.jpg", target: "Coffee" },
         { src: "static/show/text/sleep_r1.jpg", target: "Scented candle" },
         { src: "static/show/text/sleep_r3.jpg", target: "Headphones" }
       ] },
@@ -87,11 +85,11 @@ window.SHOWCASE = {
   ],
 
   image: [
-    { id: "shoes", live: true, target: "Burton snowboard",
+    { id: "shoes", target: "Burton snowboard",
       metaphor: "The shadow shows the usage scenario." },
-    { id: "duolingo", live: true, target: "Duolingo",
+    { id: "duolingo", target: "Duolingo",
       metaphor: "Always accompanied by an underlying pressure." },
-    { id: "catchup", live: true, target: "Sulwhasoo essence",
+    { id: "catchup", target: "Sulwhasoo essence",
       metaphor: "The product is built from its raw ingredient." },
     { id: "joker", target: "Mr. Bean",
       metaphor: "A torn surface reveals the inner state." },

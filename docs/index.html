@@ -22,8 +22,8 @@
 <nav id="nav">
   <a class="brand" href="#top"><span class="brand-dot"></span>Beyond&nbsp;Pixels</a>
   <div class="nav-links">
-    <a href="#text2image">Image + Text</a>
-    <a href="#image2image">Image + Image</a>
+    <a href="#text2image">Text-guided</a>
+    <a href="#image2image">Image-guided</a>
     <a href="#method">Method</a>
     <a href="#abstract">Abstract</a>
     <a href="#bibtex">BibTeX</a>
@@ -71,47 +71,82 @@
       </a>
     </div>
 
-    <!-- live transfer stage -->
-    <div class="stage reveal d5" id="stage" aria-label="Live examples of visual metaphor transfer">
-      <div class="stage-head">
-        <span class="live-dot"></span><span class="stage-title">Live · metaphor transfer</span>
-        <span class="stage-counter" id="stage-counter"></span>
+    <!-- step-by-step walkthrough of one transfer -->
+    <div class="walk reveal d5" id="walk" aria-label="One visual metaphor transfer, step by step">
+      <div class="walk-head">
+        <span class="live-dot"></span><span class="walk-title">Walkthrough · one transfer, step by step</span>
+        <ol class="walk-steps" id="walk-steps">
+          <li data-step="1"><b>1</b>Reference</li>
+          <li data-step="2"><b>2</b>Perceive</li>
+          <li data-step="3"><b>3</b>New target</li>
+          <li data-step="4"><b>4</b>Transfer</li>
+          <li data-step="5"><b>5</b>Generate</li>
+          <li data-step="6"><b>6</b>Diagnose</li>
+        </ol>
       </div>
-      <div class="stage-eq">
-        <figure class="stage-slot" data-role="ref">
-          <div class="slot-frame"><img id="stage-src" alt="Reference image"></div>
-          <figcaption>Reference</figcaption>
+
+      <div class="walk-body">
+        <figure class="walk-img walk-ref">
+          <div class="slot-frame" style="--img:url('static/show/text/carrot_src.jpg')"><img src="static/show/text/carrot_src.jpg" alt="Reference: a carrot-juice bottle sprouting from the soil like a carrot" data-walk-zoom></div>
+          <figcaption><span class="cap-k">Reference</span><span class="cap-m">“As fresh as if just pulled from the ground.”</span></figcaption>
         </figure>
-        <div class="stage-op">+</div>
-        <div class="stage-slot stage-target" id="stage-target">
-          <div class="target-chip big" id="stage-chip"><span class="chip-quote">“</span><span class="chip-text" id="stage-chip-text"></span><span class="chip-quote">”</span></div>
-          <div class="slot-frame target-frame" id="stage-tgt-frame"><img id="stage-tgt" alt="Target image"></div>
-          <span class="slot-cap" id="stage-target-cap">Target</span>
+
+        <div class="walk-mid">
+          <p class="walk-agent" id="walk-agent"></p>
+          <table class="schema-table">
+            <colgroup><col class="c-k"><col><col></colgroup>
+            <thead>
+              <tr>
+                <th></th>
+                <th class="th-ref">Reference</th>
+                <th class="th-tgt"><span class="th-label">Target</span><span class="target-chip small" id="walk-chip"><span class="chip-quote">“</span><span class="chip-text" id="walk-chip-text"></span><span class="chip-quote">”</span></span></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="row-s"><th><i class="k">S</i>Subject</th><td class="ref">Carrot juice — the product</td><td class="tgt">Cotton towel — the product <em class="badge new">new</em></td></tr>
+              <tr class="row-c"><th><i class="k">C</i>Carrier</th><td class="ref">A fresh carrot in the soil — its natural source</td><td class="tgt">A cotton plant in the field — its natural source <em class="badge new">new</em></td></tr>
+              <tr class="row-g"><th><i class="k">G</i>Logic</th><td class="ref">The product resembles its natural source</td><td class="tgt">The product resembles its natural source <em class="badge kept">kept</em></td></tr>
+              <tr class="row-v"><th><i class="k">V</i>Violation</th><td class="ref">A packaged drink grows out of the ground</td><td class="tgt">A finished towel grows on the plant as its boll <em class="badge new">new</em></td></tr>
+              <tr class="row-i"><th><i class="k">I</i>Meaning</th><td class="ref">Fresh · Pure · Natural</td><td class="tgt">Pure · Soft · Natural <em class="badge aligned">aligned</em></td></tr>
+            </tbody>
+          </table>
+          <div class="walk-checks">
+            <ul>
+              <li><span class="tick"></span><b>Subject salience</b> — the towel reads as a towel</li>
+              <li><span class="tick"></span><b>Violation realized</b> — a towel blooming on the plant</li>
+              <li><span class="tick"></span><b>Relational coherence</b> — same logic: product ⇄ natural source</li>
+              <li><span class="tick"></span><b>Meaning alignment</b> — fresh · pure · natural</li>
+            </ul>
+            <span class="walk-pass">PASS</span>
+          </div>
         </div>
-        <div class="stage-op arrow-op"><span class="arrow-line"></span><span class="arrow-head"></span></div>
-        <figure class="stage-slot" data-role="res">
-          <div class="slot-frame res-frame"><img id="stage-res" alt="Generated result"></div>
-          <figcaption>Result</figcaption>
+
+        <figure class="walk-img walk-res">
+          <div class="slot-frame res-frame" style="--img:url('static/show/text/carrot_r1.jpg')"><img src="static/show/text/carrot_r1.jpg" alt="Result: a finished towel growing on a cotton plant" data-walk-zoom></div>
+          <figcaption><span class="cap-k">Result</span><span class="cap-m">“As pure as if growing directly on cotton.”</span></figcaption>
         </figure>
       </div>
-      <p class="stage-metaphor"><span class="stage-metaphor-label">shared logic</span><span id="stage-metaphor"></span></p>
-      <div class="stage-dots" id="stage-dots"></div>
-      <div class="stage-progress"><i id="stage-progress"></i></div>
+      <div class="stage-progress"><i id="walk-progress"></i></div>
     </div>
   </div>
   <a class="scroll-cue" href="#what" aria-label="scroll down"><span></span></a>
 </header>
 
-<!-- ============================ WHAT IT IS =========================== -->
+<!-- ============================ THE TASK ============================= -->
 <section class="strip" id="what">
-  <div class="strip-inner reveal">
-    <p class="tldr">Give our agents a <b>creative image</b> and a <b>target</b> — a text or an image — and they generate an image of the target that carries <b>the same creative idea and metaphor</b>. What travels is the logic behind the picture, not the picture.</p>
-    <ul class="not-list">
-      <li><span class="no">✕</span> not image editing</li>
-      <li><span class="no">✕</span> not reference-based generation</li>
-      <li><span class="no">✕</span> not pixel-level consistency</li>
-      <li class="yes"><span class="ok">✓</span> the metaphor behind the image</li>
-    </ul>
+  <div class="strip-inner tiles reveal">
+    <div class="tile">
+      <span class="tile-k">Input</span>
+      <p>A reference image that carries a visual metaphor, plus a <b>target</b> — a word or a product photo.</p>
+    </div>
+    <div class="tile">
+      <span class="tile-k">Output</span>
+      <p>An image of the target that carries the <b>same metaphor</b> — a new carrier, a new violation, the same underlying logic.</p>
+    </div>
+    <div class="tile">
+      <span class="tile-k">What travels</span>
+      <p>The relational logic <code>G</code>, the expressive tone and the emergent meaning. The reference's own pixels, objects and layout stay with the reference.</p>
+    </div>
   </div>
 </section>
 
@@ -120,7 +155,7 @@
 <!-- ======================= 01 IMAGE + TEXT ======================== -->
 <section class="section" id="text2image">
   <div class="sec-head reveal">
-    <h2><span class="index">01</span>Image&nbsp;+&nbsp;Text&nbsp;→&nbsp;Image</h2>
+    <h2><span class="index">01</span>Text-Guided Transfer</h2>
     <p class="sec-sub">The target is given as <b>text</b>. The agents read the metaphor of the reference, find a carrier that fits the new subject, and re-materialize the idea. The same reference can be re-instantiated for several different targets. Click any card to view it large.</p>
   </div>
   <div class="grid text-grid" id="grid-text"></div>
@@ -129,7 +164,7 @@
 <!-- ======================= 02 IMAGE + IMAGE ======================= -->
 <section class="section" id="image2image">
   <div class="sec-head reveal">
-    <h2><span class="index">02</span>Image&nbsp;+&nbsp;Image&nbsp;→&nbsp;Image</h2>
+    <h2><span class="index">02</span>Image-Guided Transfer</h2>
     <p class="sec-sub">The target is given as an <b>image</b> — typically a product shot. The reference contributes only its abstract logic; the target contributes its identity. The result is a new metaphor for the target, not a blend of the two pictures — and the same product can borrow a different metaphor from each reference.</p>
   </div>
   <div class="grid image-grid" id="grid-image"></div>
