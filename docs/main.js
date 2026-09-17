@@ -315,23 +315,4 @@
     }
   }
 
-  /* ------------------------------------------------------------ star field */
-  var canvas = $("#stars");
-  if (canvas && !reduceMotion) {
-    var ctx = canvas.getContext("2d"), stars = [];
-    var resize = function () { canvas.width = window.innerWidth * devicePixelRatio; canvas.height = window.innerHeight * devicePixelRatio; };
-    resize(); window.addEventListener("resize", resize);
-    var COUNT = Math.min(140, Math.floor(window.innerWidth / 10));
-    for (var i = 0; i < COUNT; i++) stars.push({ x: Math.random(), y: Math.random(), r: Math.random() * 1.3 + 0.3, s: Math.random() * 0.00012 + 0.00003, tw: Math.random() * Math.PI * 2 });
-    var draw = function (t) {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      for (var j = 0; j < stars.length; j++) {
-        var st = stars[j]; st.y -= st.s; if (st.y < 0) { st.y = 1; st.x = Math.random(); }
-        ctx.beginPath(); ctx.arc(st.x * canvas.width, st.y * canvas.height, st.r * devicePixelRatio, 0, Math.PI * 2);
-        ctx.fillStyle = "rgba(190,200,255," + (0.25 + 0.35 * Math.abs(Math.sin(t * 0.001 + st.tw))) + ")"; ctx.fill();
-      }
-      requestAnimationFrame(draw);
-    };
-    requestAnimationFrame(draw);
-  }
 })();
